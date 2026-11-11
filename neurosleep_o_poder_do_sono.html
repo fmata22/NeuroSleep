@@ -1,0 +1,869 @@
+<!DOCTYPE html>
+<html lang="pt-BR" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NeuroSleep - O Poder do Sono no Cérebro Jovem</title>
+
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        cyan: {
+                            400: '#22d3ee',
+                            500: '#06b6d4',
+                            950: '#083344',
+                        },
+                        purple: {
+                            400: '#c084fc',
+                            500: '#a855f7',
+                            950: '#3b0764',
+                        }
+                    },
+                    animation: {
+                        'pulse-slow': 'pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                        'float': 'float 4s ease-in-out infinite',
+                    },
+                    keyframes: {
+                        float: {
+                            '0%, 100%': { transform: 'translateY(0px)' },
+                            '50%': { transform: 'translateY(-10px)' },
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <!-- Google Fonts Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+
+    <!-- FontAwesome CDN -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <!-- Chart.js CDN para gráficos -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #030712;
+            color: #f3f4f6;
+            overflow-x: hidden;
+        }
+
+        .glass-panel {
+            background: rgba(15, 23, 42, 0.75);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+
+        .glass-card {
+            background: rgba(30, 41, 59, 0.5);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .hotspot-ring {
+            animation: ping 2s cubic-bezier(0, 0, 0.2, 1) infinite;
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #090d16;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #1e293b;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #334155;
+        }
+
+        input[type=range] {
+            accent-color: #22d3ee;
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col justify-between selection:bg-cyan-500 selection:text-slate-900">
+
+    <!-- HEADER / NAVIGATION -->
+    <header class="sticky top-0 z-40 glass-panel border-b border-slate-800/80 px-4 py-3 sm:px-8">
+        <div class="max-w-7xl mx-auto flex items-center justify-between">
+            <!-- Brand Logo -->
+            <div class="flex items-center space-x-3 cursor-pointer" onclick="switchTab('brain-explorer')">
+                <div class="w-10 h-10 rounded-2xl bg-gradient-to-tr from-cyan-500 to-purple-600 flex items-center justify-center shadow-lg shadow-cyan-500/20">
+                    <i class="fa-solid fa-brain text-white text-xl"></i>
+                </div>
+                <div>
+                    <h1 class="text-lg font-black tracking-wider bg-gradient-to-r from-cyan-400 via-purple-300 to-pink-400 bg-clip-text text-transparent">
+                        NEUROSLEEP
+                    </h1>
+                    <p class="text-[10px] text-slate-400 font-semibold tracking-widest uppercase">EdTech • O Poder do Sono</p>
+                </div>
+            </div>
+
+            <!-- Desktop Navigation -->
+            <nav class="hidden md:flex items-center space-x-1 bg-slate-900/80 p-1.5 rounded-2xl border border-slate-800">
+                <button onclick="switchTab('brain-explorer')" id="nav-brain-explorer" class="nav-btn px-4 py-2 rounded-xl text-xs font-bold transition-all text-cyan-400 bg-slate-800 border border-slate-700">
+                    <i class="fa-solid fa-head-side-virus mr-2"></i> Cérebro Interativo
+                </button>
+                <button onclick="switchTab('sleep-lab')" id="nav-sleep-lab" class="nav-btn px-4 py-2 rounded-xl text-xs font-bold transition-all text-slate-400 hover:text-white">
+                    <i class="fa-solid fa-sliders mr-2"></i> Laboratório de Sono
+                </button>
+                <button onclick="switchTab('game-quiz')" id="nav-game-quiz" class="nav-btn px-4 py-2 rounded-xl text-xs font-bold transition-all text-slate-400 hover:text-white">
+                    <i class="fa-solid fa-gamepad mr-2"></i> Mitos vs. Fatos
+                </button>
+                <button onclick="switchTab('calc')" id="nav-calc" class="nav-btn px-4 py-2 rounded-xl text-xs font-bold transition-all text-slate-400 hover:text-white">
+                    <i class="fa-solid fa-calculator mr-2"></i> Calculadora REM
+                </button>
+            </nav>
+
+            <!-- Status Indicator & Share Button -->
+            <div class="flex items-center space-x-3">
+                <button onclick="openShareModal()" class="px-3.5 py-1.5 rounded-xl bg-gradient-to-r from-cyan-500 to-purple-600 hover:from-cyan-400 hover:to-purple-500 text-white font-bold text-xs flex items-center space-x-2 shadow-md shadow-cyan-500/20 transition-all">
+                    <i class="fa-solid fa-share-nodes"></i>
+                    <span class="hidden sm:inline">Compartilhar</span>
+                </button>
+                <div class="hidden sm:flex items-center space-x-2 bg-slate-900 px-3 py-1.5 rounded-full border border-slate-800">
+                    <span class="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse"></span>
+                    <span class="text-xs font-semibold text-slate-300" id="user-status-text">Bateria Mental: <span class="text-emerald-400" id="status-battery-val">85%</span></span>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- MOBILE NAVIGATION BOTTOM FIX -->
+    <div class="md:hidden fixed bottom-0 left-0 right-0 z-40 glass-panel border-t border-slate-800 px-2 py-2 flex justify-around">
+        <button onclick="switchTab('brain-explorer')" class="mobile-nav-btn text-cyan-400 flex flex-col items-center space-y-1">
+            <i class="fa-solid fa-head-side-virus text-lg"></i>
+            <span class="text-[10px] font-medium">Cérebro</span>
+        </button>
+        <button onclick="switchTab('sleep-lab')" class="mobile-nav-btn text-slate-400 flex flex-col items-center space-y-1">
+            <i class="fa-solid fa-sliders text-lg"></i>
+            <span class="text-[10px] font-medium">Simulador</span>
+        </button>
+        <button onclick="switchTab('game-quiz')" class="mobile-nav-btn text-slate-400 flex flex-col items-center space-y-1">
+            <i class="fa-solid fa-gamepad text-lg"></i>
+            <span class="text-[10px] font-medium">Quiz</span>
+        </button>
+        <button onclick="switchTab('calc')" class="mobile-nav-btn text-slate-400 flex flex-col items-center space-y-1">
+            <i class="fa-solid fa-calculator text-lg"></i>
+            <span class="text-[10px] font-medium">Calc REM</span>
+        </button>
+    </div>
+
+    <!-- MAIN CONTAINER -->
+    <main class="max-w-7xl mx-auto w-full px-4 py-6 sm:px-8 flex-1 mb-16 md:mb-0">
+
+        <!-- TAB 1: CÉREBRO INTERATIVO (EXPLORER) -->
+        <section id="tab-brain-explorer" class="tab-content space-y-8 animate-fadeIn">
+            
+            <!-- Hero Title Banner -->
+            <div class="text-center space-y-3 max-w-3xl mx-auto">
+                <span class="px-3 py-1 rounded-full bg-cyan-500/10 border border-cyan-500/30 text-cyan-400 text-xs font-semibold uppercase tracking-widest">
+                    <i class="fa-solid fa-bolt mr-1"></i> Experiência EdTech Interativa
+                </span>
+                <h2 class="text-3xl sm:text-5xl font-black text-white tracking-tight">
+                    Vem saber mais sobre os <span class="bg-gradient-to-r from-cyan-400 via-purple-400 to-pink-400 bg-clip-text text-transparent">impactos do sono!</span>
+                </h2>
+                <p class="text-slate-400 text-sm sm:text-base leading-relaxed">
+                    Você sabia que virar a noite jogando ou estudando redefine seu cérebro de forma negativa? Clique nos centros neurais abaixo para descobrir o que rola por dentro.
+                </p>
+            </div>
+
+            <!-- Main Interactive Canvas Grid -->
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-center">
+                
+                <!-- SVG Brain Display Container -->
+                <div class="lg:col-span-7 glass-panel p-6 sm:p-8 rounded-3xl relative overflow-hidden flex flex-col items-center justify-center min-h-[380px]">
+                    <div class="absolute inset-0 bg-gradient-to-b from-cyan-500/5 via-transparent to-purple-500/5 pointer-events-none"></div>
+                    
+                    <!-- SVG Interactive Brain Graphic -->
+                    <div class="relative w-full max-w-md aspect-square flex items-center justify-center">
+                        <svg viewBox="0 0 500 400" class="w-full h-full drop-shadow-[0_0_25px_rgba(34,211,238,0.25)]">
+                            <!-- Brain Outer Silhouette Base -->
+                            <path d="M150,220 C110,210 90,170 110,120 C130,70 190,40 260,40 C340,40 400,80 410,140 C420,200 390,260 350,280 C320,295 280,290 260,310 C240,330 230,360 210,360 C190,360 180,330 180,300 C180,270 170,230 150,220 Z" 
+                                  fill="#0f172a" stroke="#334155" stroke-width="4"/>
+
+                            <!-- Frontal Lobe (Córtex Pre-Frontal) -->
+                            <path d="M260,45 C330,45 390,80 400,140 C410,185 390,230 360,250 C330,220 300,160 260,45 Z" 
+                                  fill="rgba(34, 211, 238, 0.15)" stroke="#22d3ee" stroke-width="2" class="transition-all hover:fill-cyan-500/30 cursor-pointer" onclick="selectBrainRegion('prefrontal')"/>
+
+                            <!-- Temporal Lobe & Limbic System (Amígdala e Hipocampo) -->
+                            <path d="M200,160 C250,150 300,180 320,230 C300,270 240,275 200,240 C170,210 180,180 200,160 Z" 
+                                  fill="rgba(168, 85, 247, 0.15)" stroke="#a855f7" stroke-width="2" class="transition-all hover:fill-purple-500/30 cursor-pointer" onclick="selectBrainRegion('hippocampus')"/>
+
+                            <!-- Cerebellum / Stem (Tronco Encefálico) -->
+                            <path d="M180,270 C220,270 240,300 230,350 C200,350 180,320 180,270 Z" 
+                                  fill="rgba(244, 63, 94, 0.15)" stroke="#f43f5e" stroke-width="2" class="transition-all hover:fill-rose-500/30 cursor-pointer" onclick="selectBrainRegion('amygdala')"/>
+
+                            <!-- Neural Connection Lines (Decorative) -->
+                            <path d="M 260,90 Q 300,140 340,110" fill="none" stroke="#22d3ee" stroke-width="1.5" stroke-dasharray="4,4" class="animate-pulse"/>
+                            <path d="M 210,190 Q 250,220 290,200" fill="none" stroke="#a855f7" stroke-width="1.5" stroke-dasharray="4,4" class="animate-pulse"/>
+                        </svg>
+
+                        <!-- Hotspot 1: Prefrontal Cortex -->
+                        <div class="absolute top-[28%] right-[28%] group cursor-pointer" onclick="selectBrainRegion('prefrontal')">
+                            <span class="relative flex h-6 w-6">
+                              <span class="hotspot-ring absolute inline-flex h-full w-full rounded-full bg-cyan-400 opacity-75"></span>
+                              <span class="relative inline-flex rounded-full h-6 w-6 bg-cyan-500 items-center justify-center text-slate-950 font-bold text-xs shadow-lg">1</span>
+                            </span>
+                        </div>
+
+                        <!-- Hotspot 2: Hippocampus (Memory) -->
+                        <div class="absolute top-[52%] left-[48%] group cursor-pointer" onclick="selectBrainRegion('hippocampus')">
+                            <span class="relative flex h-6 w-6">
+                              <span class="hotspot-ring absolute inline-flex h-full w-full rounded-full bg-purple-400 opacity-75"></span>
+                              <span class="relative inline-flex rounded-full h-6 w-6 bg-purple-500 items-center justify-center text-white font-bold text-xs shadow-lg">2</span>
+                            </span>
+                        </div>
+
+                        <!-- Hotspot 3: Amygdala (Emotional Control) -->
+                        <div class="absolute bottom-[30%] left-[32%] group cursor-pointer" onclick="selectBrainRegion('amygdala')">
+                            <span class="relative flex h-6 w-6">
+                              <span class="hotspot-ring absolute inline-flex h-full w-full rounded-full bg-rose-400 opacity-75"></span>
+                              <span class="relative inline-flex rounded-full h-6 w-6 bg-rose-500 items-center justify-center text-white font-bold text-xs shadow-lg">3</span>
+                            </span>
+                        </div>
+                    </div>
+
+                    <div class="mt-4 flex flex-wrap justify-center gap-2">
+                        <span class="text-xs text-slate-400 flex items-center gap-1"><span class="w-2.5 h-2.5 rounded-full bg-cyan-400"></span> 1. Córtex Pré-Frontal</span>
+                        <span class="text-xs text-slate-400 flex items-center gap-1"><span class="w-2.5 h-2.5 rounded-full bg-purple-400"></span> 2. Hipocampo</span>
+                        <span class="text-xs text-slate-400 flex items-center gap-1"><span class="w-2.5 h-2.5 rounded-full bg-rose-400"></span> 3. Amígdala</span>
+                    </div>
+                </div>
+
+                <!-- Info Dynamic Card Sidebar -->
+                <div class="lg:col-span-5 space-y-4">
+                    <div class="glass-panel p-6 rounded-3xl border border-slate-800 space-y-4" id="brain-info-card">
+                        <div class="flex items-center justify-between">
+                            <span id="region-badge" class="px-3 py-1 rounded-full bg-cyan-500/20 text-cyan-300 text-xs font-bold uppercase tracking-wider">
+                                Região 01 • Foco e Decisão
+                            </span>
+                            <i id="region-icon" class="fa-solid fa-lightbulb text-cyan-400 text-xl"></i>
+                        </div>
+                        
+                        <h3 id="region-title" class="text-2xl font-bold text-white">Córtex Pré-Frontal</h3>
+                        
+                        <p id="region-desc" class="text-sm text-slate-300 leading-relaxed">
+                            É o "maestro" do seu cérebro! Responsável pela concentração na aula, tomadas de decisão rápidas e planejamento dos estudos.
+                        </p>
+
+                        <!-- Impact Box -->
+                        <div class="p-4 rounded-2xl bg-slate-900/90 border border-slate-800 space-y-2">
+                            <div class="text-xs font-bold uppercase tracking-wider text-rose-400 flex items-center gap-1.5">
+                                <i class="fa-solid fa-triangle-exclamation"></i> Se você dorme mal:
+                            </div>
+                            <p id="region-impact" class="text-xs text-slate-300 leading-relaxed">
+                                Dificuldade enorme de focar na explicação do professor, impulso para procrastinar nos jogos e decisões impulsivas.
+                            </p>
+                        </div>
+
+                        <!-- Benefit Box -->
+                        <div class="p-4 rounded-2xl bg-slate-900/90 border border-slate-800 space-y-2">
+                            <div class="text-xs font-bold uppercase tracking-wider text-emerald-400 flex items-center gap-1.5">
+                                <i class="fa-solid fa-circle-check"></i> Com o sono em dia (8-9h):
+                            </div>
+                            <p id="region-benefit" class="text-xs text-slate-300 leading-relaxed">
+                                Aprendizado 3x mais rápido, raciocínio afiado nas provas de exatas e foco total na rotina diária.
+                            </p>
+                        </div>
+
+                        <div class="pt-2">
+                            <button onclick="switchTab('sleep-lab')" class="w-full py-3 rounded-xl bg-gradient-to-r from-cyan-500 to-purple-600 hover:from-cyan-400 hover:to-purple-500 text-slate-950 font-bold text-xs uppercase tracking-wider transition-all shadow-lg shadow-cyan-500/20">
+                                Testar Impacto no Laboratório de Sono <i class="fa-solid fa-arrow-right ml-1"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- Highlights Grid -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 pt-4">
+                <div class="glass-card p-5 rounded-2xl border border-slate-800 space-y-2">
+                    <div class="w-10 h-10 rounded-xl bg-cyan-500/20 text-cyan-400 flex items-center justify-center text-lg font-bold">
+                        <i class="fa-solid fa-graduation-cap"></i>
+                    </div>
+                    <h4 class="font-bold text-white text-sm">Desempenho Escolar</h4>
+                    <p class="text-xs text-slate-400 leading-relaxed">
+                        Durante o sono profundo, seu cérebro transfere o conteúdo do dia para a memória de longo prazo. Virar a noite faz você esquecer até 40% da matéria!
+                    </p>
+                </div>
+                <div class="glass-card p-5 rounded-2xl border border-slate-800 space-y-2">
+                    <div class="w-10 h-10 rounded-xl bg-purple-500/20 text-purple-400 flex items-center justify-center text-lg font-bold">
+                        <i class="fa-solid fa-face-smile"></i>
+                    </div>
+                    <h4 class="font-bold text-white text-sm">Controle Emocional</h4>
+                    <p class="text-xs text-slate-400 leading-relaxed">
+                        Menos de 7h de sono hipersensibiliza a amígdala. O resultado? Mais estresse, ansiedade e impaciência com amigos e familiares.
+                    </p>
+                </div>
+                <div class="glass-card p-5 rounded-2xl border border-slate-800 space-y-2">
+                    <div class="w-10 h-10 rounded-xl bg-pink-500/20 text-pink-400 flex items-center justify-center text-lg font-bold">
+                        <i class="fa-solid fa-shield-halved"></i>
+                    </div>
+                    <h4 class="font-bold text-white text-sm">Imunidade & Estética</h4>
+                    <p class="text-xs text-slate-400 leading-relaxed">
+                        É dormindo que o GH (hormônio do crescimento) é liberado, regenerando a pele (menos acne) e fortalecendo o sistema imunológico contra resfriados.
+                    </p>
+                </div>
+            </div>
+
+        </section>
+
+        <!-- TAB 2: LABORATÓRIO SIMULADOR DE SONO -->
+        <section id="tab-sleep-lab" class="tab-content hidden space-y-8 animate-fadeIn">
+            
+            <div class="text-center space-y-2 max-w-2xl mx-auto">
+                <span class="px-3 py-1 rounded-full bg-purple-500/10 border border-purple-500/30 text-purple-400 text-xs font-semibold uppercase tracking-widest">
+                    <i class="fa-solid fa-flask mr-1"></i> Simulação Científica Jovem
+                </span>
+                <h2 class="text-3xl font-black text-white">Laboratório de Bio-Impacto</h2>
+                <p class="text-slate-400 text-xs sm:text-sm">
+                    Deslize o controle abaixo para simular as horas de sono que você costuma dormir por noite e veja como seu corpo reage instantaneamente!
+                </p>
+            </div>
+
+            <!-- Slider Control Container -->
+            <div class="glass-panel p-6 md:p-8 rounded-3xl border border-slate-800 max-w-3xl mx-auto space-y-6">
+                <div class="flex flex-col sm:flex-row items-center justify-between gap-4">
+                    <div>
+                        <span class="text-xs font-bold text-slate-400 uppercase tracking-wider">Tempo de Sono Selecionado</span>
+                        <div class="text-4xl font-black text-white flex items-baseline gap-2">
+                            <span id="hours-display" class="text-cyan-400">7.5</span> <span class="text-lg text-slate-400">Horas / noite</span>
+                        </div>
+                    </div>
+                    <div id="sleep-quality-badge" class="px-4 py-2 rounded-xl bg-emerald-500/20 border border-emerald-500/40 text-emerald-400 text-xs font-extrabold uppercase">
+                        Nível Ideal de Recuperação
+                    </div>
+                </div>
+
+                <!-- Range Slider -->
+                <div class="space-y-2">
+                    <input type="range" id="sleep-slider" min="4" max="10" step="0.5" value="7.5" 
+                           class="w-full h-3 bg-slate-800 rounded-lg appearance-none cursor-pointer border border-slate-700 focus:outline-none"
+                           oninput="updateSimulator(this.value)">
+                    <div class="flex justify-between text-[11px] font-bold text-slate-500 px-1">
+                        <span>4h (Zumbi)</span>
+                        <span>6h (Alerta Amarelo)</span>
+                        <span>8h (Modo Turbo)</span>
+                        <span>10h (Descanso Máximo)</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Metrics Grid Result -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                
+                <!-- Metric 1: Foco -->
+                <div class="glass-card p-5 rounded-2xl border border-slate-800 space-y-3">
+                    <div class="flex items-center justify-between text-xs font-bold">
+                        <span class="text-slate-400">Foco e Retenção</span>
+                        <span id="val-focus" class="text-cyan-400 font-extrabold">85%</span>
+                    </div>
+                    <div class="w-full h-2.5 bg-slate-900 rounded-full overflow-hidden border border-slate-800">
+                        <div id="bar-focus" class="h-full bg-cyan-400 transition-all duration-500" style="width: 85%"></div>
+                    </div>
+                    <p id="desc-focus" class="text-[11px] text-slate-400">Atenção sustentada ideal nas aulas de 50 minutos.</p>
+                </div>
+
+                <!-- Metric 2: Humor -->
+                <div class="glass-card p-5 rounded-2xl border border-slate-800 space-y-3">
+                    <div class="flex items-center justify-between text-xs font-bold">
+                        <span class="text-slate-400">Estabilidade Emocional</span>
+                        <span id="val-mood" class="text-purple-400 font-extrabold">80%</span>
+                    </div>
+                    <div class="w-full h-2.5 bg-slate-900 rounded-full overflow-hidden border border-slate-800">
+                        <div id="bar-mood" class="h-full bg-purple-400 transition-all duration-500" style="width: 80%"></div>
+                    </div>
+                    <p id="desc-mood" class="text-[11px] text-slate-400">Boa paciência e baixo nível de irritabilidade.</p>
+                </div>
+
+                <!-- Metric 3: Reflexo e Reação -->
+                <div class="glass-card p-5 rounded-2xl border border-slate-800 space-y-3">
+                    <div class="flex items-center justify-between text-xs font-bold">
+                        <span class="text-slate-400">Velocidade de Reflexo</span>
+                        <span id="val-reflex" class="text-emerald-400 font-extrabold">90%</span>
+                    </div>
+                    <div class="w-full h-2.5 bg-slate-900 rounded-full overflow-hidden border border-slate-800">
+                        <div id="bar-reflex" class="h-full bg-emerald-400 transition-all duration-500" style="width: 90%"></div>
+                    </div>
+                    <p id="desc-reflex" class="text-[11px] text-slate-400">Ótimo tempo de resposta nos esportes e jogos online.</p>
+                </div>
+
+                <!-- Metric 4: Imunidade -->
+                <div class="glass-card p-5 rounded-2xl border border-slate-800 space-y-3">
+                    <div class="flex items-center justify-between text-xs font-bold">
+                        <span class="text-slate-400">Defesa Imunológica</span>
+                        <span id="val-immunity" class="text-pink-400 font-extrabold">88%</span>
+                    </div>
+                    <div class="w-full h-2.5 bg-slate-900 rounded-full overflow-hidden border border-slate-800">
+                        <div id="bar-immunity" class="h-full bg-pink-400 transition-all duration-500" style="width: 88%"></div>
+                    </div>
+                    <p id="desc-immunity" class="text-[11px] text-slate-400">Produção adequada de anticorpos e células de defesa.</p>
+                </div>
+            </div>
+
+            <!-- Real-time Feedback Narrative Box -->
+            <div class="glass-panel p-6 rounded-3xl border border-slate-800 flex items-start space-x-4">
+                <div class="w-12 h-12 rounded-2xl bg-cyan-500/20 text-cyan-400 flex items-center justify-center shrink-0 text-xl font-bold">
+                    <i class="fa-solid fa-comment-dots"></i>
+                </div>
+                <div class="space-y-1">
+                    <h4 class="text-sm font-bold text-white" id="feedback-title">Diagnóstico do Neuro-Assistente:</h4>
+                    <p class="text-xs text-slate-300 leading-relaxed" id="feedback-text">
+                        Com essa quantidade de sono, seu cérebro completa os ciclos REM necessários para consolidar matérias difíceis e regular o cortisol (estresse). Você rende muito mais estudando menos tempo!
+                    </p>
+                </div>
+            </div>
+
+        </section>
+
+        <!-- TAB 3: QUIZ MITOS VS FATOS -->
+        <section id="tab-game-quiz" class="tab-content hidden space-y-8 animate-fadeIn">
+            
+            <div class="text-center space-y-2 max-w-2xl mx-auto">
+                <span class="px-3 py-1 rounded-full bg-pink-500/10 border border-pink-500/30 text-pink-400 text-xs font-semibold uppercase tracking-widest">
+                    <i class="fa-solid fa-gamepad mr-1"></i> Game Interativo
+                </span>
+                <h2 class="text-3xl font-black text-white">Desafio Mitos vs. Fatos</h2>
+                <p class="text-slate-400 text-xs sm:text-sm">
+                    Será que você domina a neurociência do sono ou cai nas fake news da rotina escolar? Responda e ganhe pontos!
+                </p>
+            </div>
+
+            <!-- Quiz Box -->
+            <div class="glass-panel p-6 md:p-8 rounded-3xl border border-slate-800 max-w-2xl mx-auto space-y-6 relative overflow-hidden">
+                
+                <!-- Score Bar -->
+                <div class="flex items-center justify-between border-b border-slate-800 pb-4">
+                    <span class="text-xs font-bold text-slate-400">Pergunta <span id="quiz-current-step" class="text-white">1</span> de <span id="quiz-total-step">5</span></span>
+                    <div class="flex items-center space-x-2">
+                        <i class="fa-solid fa-trophy text-amber-400 text-xs"></i>
+                        <span class="text-xs font-bold text-amber-400"><span id="quiz-score">0</span> Pontos</span>
+                    </div>
+                </div>
+
+                <!-- Question Title -->
+                <div class="space-y-3 min-h-[100px] flex flex-col justify-center">
+                    <span id="quiz-category" class="text-[10px] font-bold text-cyan-400 uppercase tracking-widest">HÁBITOS NOTURNOS</span>
+                    <h3 id="quiz-question-text" class="text-lg sm:text-xl font-bold text-white leading-snug">
+                        "Virar a noite estudando antes da prova de Matemática garante uma nota melhor porque a matéria fica fresca na memória."
+                    </h3>
+                </div>
+
+                <!-- Answer Buttons -->
+                <div class="grid grid-cols-2 gap-4" id="quiz-options-container">
+                    <button onclick="handleQuizAnswer(false)" class="py-4 px-6 rounded-2xl bg-rose-500/10 hover:bg-rose-500/20 border border-rose-500/30 text-rose-400 font-extrabold text-sm transition-all flex items-center justify-center space-x-2">
+                        <i class="fa-solid fa-xmark text-lg"></i>
+                        <span>MITO!</span>
+                    </button>
+                    <button onclick="handleQuizAnswer(true)" class="py-4 px-6 rounded-2xl bg-emerald-500/10 hover:bg-emerald-500/20 border border-emerald-500/30 text-emerald-400 font-extrabold text-sm transition-all flex items-center justify-center space-x-2">
+                        <i class="fa-solid fa-check text-lg"></i>
+                        <span>FATO!</span>
+                    </button>
+                </div>
+
+                <!-- Feedback Explanation Overlay / Box -->
+                <div id="quiz-explanation-box" class="hidden p-4 rounded-2xl bg-slate-900 border border-slate-700 space-y-3">
+                    <div class="flex items-center space-x-2" id="explanation-header">
+                        <!-- Dynamic Result Header -->
+                    </div>
+                    <p id="explanation-text" class="text-xs text-slate-300 leading-relaxed"></p>
+                    <button onclick="nextQuestion()" class="w-full py-2.5 rounded-xl bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-bold text-xs uppercase tracking-wider transition-all">
+                        Próxima Pergunta <i class="fa-solid fa-arrow-right ml-1"></i>
+                    </button>
+                </div>
+
+            </div>
+
+        </section>
+
+        <!-- TAB 4: CALCULADORA DE SONO REM -->
+        <section id="tab-calc" class="tab-content hidden space-y-8 animate-fadeIn">
+            
+            <div class="text-center space-y-2 max-w-2xl mx-auto">
+                <span class="px-3 py-1 rounded-full bg-cyan-500/10 border border-cyan-500/30 text-cyan-400 text-xs font-semibold uppercase tracking-widest">
+                    <i class="fa-solid fa-calculator mr-1"></i> Algoritmo de Sono
+                </span>
+                <h2 class="text-3xl font-black text-white">Calculadora de Horário IDEAL</h2>
+                <p class="text-slate-400 text-xs sm:text-sm">
+                    Acordar no meio de um ciclo de sono causa aquela sensação de "corpo pesado". Informe a hora que precisa acordar para ir à escola e calcularemos o momento exato de ir pra cama!
+                </p>
+            </div>
+
+            <!-- Calc Form Box -->
+            <div class="glass-panel p-6 md:p-8 rounded-3xl border border-slate-800 max-w-xl mx-auto space-y-6">
+                
+                <div class="space-y-2">
+                    <label class="text-xs font-bold text-slate-300 uppercase tracking-wider">Que horas você precisa acordar?</label>
+                    <input type="time" id="wake-time" value="06:30" class="w-full bg-slate-900 border border-slate-700 text-cyan-400 text-2xl font-black rounded-2xl px-4 py-3 focus:outline-none focus:border-cyan-400 text-center">
+                </div>
+
+                <button onclick="calculateSleepTimes()" class="w-full py-3.5 rounded-2xl bg-gradient-to-r from-cyan-500 to-purple-600 hover:from-cyan-400 hover:to-purple-500 text-slate-950 font-black text-sm uppercase tracking-wider transition-all shadow-lg shadow-cyan-500/20">
+                    <i class="fa-solid fa-wand-magic-sparkles mr-2"></i> Calcular Melhores Horários
+                </button>
+
+                <!-- Results Grid -->
+                <div class="space-y-3 pt-2">
+                    <span class="text-xs font-bold text-slate-400 block text-center uppercase tracking-wider">Horários recomendados para adormecer:</span>
+                    
+                    <div id="sleep-suggestions" class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                        <!-- Dynamic calculated time boxes will go here -->
+                    </div>
+                </div>
+
+                <div class="p-4 rounded-xl bg-slate-900/80 border border-slate-800 text-[11px] text-slate-400 leading-relaxed flex items-center space-x-3">
+                    <i class="fa-solid fa-circle-info text-cyan-400 text-base shrink-0"></i>
+                    <span>Consideramos o tempo médio de 15 minutos para adormecer + ciclos naturais de sono REM de 90 minutos cada.</span>
+                </div>
+
+            </div>
+
+        </section>
+
+    </main>
+
+    <!-- MODAL DE COMPARTILHAMENTO E QR CODE -->
+    <div id="share-modal" class="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm hidden flex items-center justify-center p-4">
+        <div class="glass-card max-w-md w-full p-6 rounded-3xl border border-cyan-500/40 space-y-6 animate-fadeIn relative">
+            <button onclick="closeShareModal()" class="absolute top-4 right-4 text-slate-400 hover:text-white text-lg">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+
+            <div class="text-center space-y-2">
+                <div class="w-12 h-12 bg-cyan-500/20 text-cyan-400 rounded-2xl flex items-center justify-center text-xl mx-auto">
+                    <i class="fa-solid fa-qrcode"></i>
+                </div>
+                <h3 class="text-xl font-black text-white">Compartilhar NeuroSleep</h3>
+                <p class="text-xs text-slate-400">Escaneie o QR Code abaixo no seu celular ou copie o link do app.</p>
+            </div>
+
+            <!-- QR Code Box -->
+            <div class="bg-white p-4 rounded-2xl max-w-[200px] mx-auto flex items-center justify-center shadow-lg">
+                <img id="share-qr-code" src="https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=https://neurosleep.app" alt="QR Code" class="w-full h-auto">
+            </div>
+
+            <!-- Copy Link Box -->
+            <div class="space-y-2">
+                <label class="text-xs font-bold text-slate-300">Link Atual da Aplicação:</label>
+                <div class="flex items-center space-x-2">
+                    <input type="text" id="share-link-input" readonly value="https://neurosleep.app" class="bg-slate-900 border border-slate-700 text-xs text-cyan-300 px-3 py-2.5 rounded-xl w-full focus:outline-none">
+                    <button onclick="copyAppShareLink()" class="px-4 py-2.5 bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-bold rounded-xl text-xs shrink-0 transition-all flex items-center space-x-1">
+                        <i class="fa-solid fa-copy"></i>
+                        <span>Copiar</span>
+                    </button>
+                </div>
+                <span id="copy-success-msg" class="text-[10px] text-emerald-400 hidden text-center block">✓ Link copiado para a área de transferência!</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- FOOTER -->
+    <footer class="glass-panel border-t border-slate-800 py-6 px-4 text-center text-xs text-slate-500">
+        <div class="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
+            <div class="flex items-center space-x-2">
+                <i class="fa-solid fa-brain text-cyan-400"></i>
+                <span class="font-bold text-slate-400">NeuroSleep EdTech — Conscientização Juvenil</span>
+            </div>
+            <div class="flex items-center space-x-4">
+                <p>Desenvolvido com neurociência aplicada.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- JAVASCRIPT MODULAR & LOGIC -->
+    <script>
+        // --- NAVIGATION STATE MANAGEMENT ---
+        function switchTab(tabId) {
+            // Hide all tabs
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
+            
+            // Reset active nav buttons
+            document.querySelectorAll('.nav-btn').forEach(btn => {
+                btn.classList.remove('text-cyan-400', 'bg-slate-800', 'border', 'border-slate-700');
+                btn.classList.add('text-slate-400');
+            });
+
+            // Show selected tab
+            const targetTab = document.getElementById(`tab-${tabId}`);
+            if(targetTab) {
+                targetTab.classList.remove('hidden');
+            }
+
+            // Highlight desktop button
+            const activeBtn = document.getElementById(`nav-${tabId}`);
+            if(activeBtn) {
+                activeBtn.classList.remove('text-slate-400');
+                activeBtn.classList.add('text-cyan-400', 'bg-slate-800', 'border', 'border-slate-700');
+            }
+        }
+
+        // --- BRAIN INTERACTIVE REGIONS DATA ---
+        const brainData = {
+            prefrontal: {
+                badge: "Região 01 • Foco e Decisão",
+                title: "Córtex Pré-Frontal",
+                icon: "fa-solid fa-lightbulb text-cyan-400",
+                desc: "É o centro de comando do seu cérebro! Cuida da sua capacidade de focar na aula, resolver problemas complexos e controlar os impulsos.",
+                impact: "Dificuldade enorme de prestar atenção no professor, tendência a procrastinar nos jogos e decisões impulsivas.",
+                benefit: "Foco nítido, retenção rápida de conteúdo e alta produtividade nos estudos em menos tempo."
+            },
+            hippocampus: {
+                badge: "Região 02 • Memória de Longo Prazo",
+                title: "Hipocampo",
+                icon: "fa-solid fa-database text-purple-400",
+                desc: "Funciona como o 'pen-drive' do cérebro. É aqui que o conhecimento aprendido durante o dia é consolidado durante a fase de sono profundo.",
+                impact: "Sensação de 'branco' total na hora da prova. O conhecimento simplesmente não é salvo no cérebro.",
+                benefit: "Memória fotográfica afiada! O conteúdo estudado é armazenado de forma permanente."
+            },
+            amygdala: {
+                badge: "Região 03 • Emoções e Humores",
+                title: "Amígdala Cerebral",
+                icon: "fa-solid fa-heart-pulse text-rose-400",
+                desc: "O centro gerador de emoções do cérebro. Regula como você reage ao estresse, ansiedade e convivência diária.",
+                impact: "Hipersensibilidade emocional, irritação com amigos/familiares, ansiedade elevada antes das avaliações.",
+                benefit: "Inteligência emocional, calma nas situações de pressão e sensação constante de bem-estar."
+            }
+        };
+
+        function selectBrainRegion(regionKey) {
+            const data = brainData[regionKey];
+            if(!data) return;
+
+            document.getElementById('region-badge').innerText = data.badge;
+            document.getElementById('region-title').innerText = data.title;
+            document.getElementById('region-desc').innerText = data.desc;
+            document.getElementById('region-impact').innerText = data.impact;
+            document.getElementById('region-benefit').innerText = data.benefit;
+            document.getElementById('region-icon').className = `${data.icon} text-xl`;
+        }
+
+        // --- SLEEP SIMULATOR LOGIC ---
+        function updateSimulator(hours) {
+            document.getElementById('hours-display').innerText = hours;
+            const h = parseFloat(hours);
+
+            // Calculations based on sleep hours
+            let focusVal = Math.min(100, Math.round((h / 8.5) * 100));
+            let moodVal = Math.min(100, Math.round((h / 8) * 95));
+            let reflexVal = Math.min(100, Math.round((h / 8.5) * 98));
+            let immunityVal = Math.min(100, Math.round((h / 9) * 100));
+
+            // Penalty for severe sleep deprivation
+            if (h < 6) {
+                focusVal = Math.max(25, focusVal - 25);
+                moodVal = Math.max(20, moodVal - 30);
+                reflexVal = Math.max(30, reflexVal - 20);
+                immunityVal = Math.max(35, immunityVal - 25);
+            }
+
+            // Update DOM progress bars & labels
+            updateMetric('focus', focusVal);
+            updateMetric('mood', moodVal);
+            updateMetric('reflex', reflexVal);
+            updateMetric('immunity', immunityVal);
+
+            // Update overall battery indicator in header
+            document.getElementById('status-battery-val').innerText = `${focusVal}%`;
+
+            // Dynamic Narrative Feedback Badge & Text
+            const badge = document.getElementById('sleep-quality-badge');
+            const feedTitle = document.getElementById('feedback-title');
+            const feedText = document.getElementById('feedback-text');
+
+            if(h >= 8) {
+                badge.className = "px-4 py-2 rounded-xl bg-emerald-500/20 border border-emerald-500/40 text-emerald-400 text-xs font-extrabold uppercase";
+                badge.innerText = "Nível Modo Turbo (Ideal)";
+                feedTitle.innerText = "Diagnóstico: Performance Máxima!";
+                feedText.innerText = "Seu cérebro conclui todos os ciclos de limpeza toxínica (sistema glinfático) e consolidação da memória. Você rende o dobro estudando a metade do tempo!";
+            } else if(h >= 6.5) {
+                badge.className = "px-4 py-2 rounded-xl bg-amber-500/20 border border-amber-500/40 text-amber-400 text-xs font-extrabold uppercase";
+                badge.innerText = "Nível Moderado (Alerta)";
+                feedTitle.innerText = "Diagnóstico: Funcionando no Limite";
+                feedText.innerText = "Você consegue realizar as atividades, mas seu cérebro consome o dobro de energia. Pode sentir um 'pico de cansaço' por volta das 14h.";
+            } else {
+                badge.className = "px-4 py-2 rounded-xl bg-rose-500/20 border border-rose-500/40 text-rose-400 text-xs font-extrabold uppercase";
+                badge.innerText = "Nível Crítico (Modo Zumbi)";
+                feedTitle.innerText = "Diagnóstico: Deprivação Severa!";
+                feedText.innerText = "Atenção! Seu cérebro começa a sofrer 'microsonos' involuntários. Sua capacidade de aprendizado cai dramaticamente e a irritabilidade aumenta.";
+            }
+        }
+
+        function updateMetric(id, value) {
+            document.getElementById(`val-${id}`).innerText = `${value}%`;
+            document.getElementById(`bar-${id}`).style.width = `${value}%`;
+        }
+
+        // --- QUIZ GAME DATA & LOGIC ---
+        const quizQuestions = [
+            {
+                category: "HÁBITOS NOTURNOS",
+                question: "Virar a noite estudando antes da prova de Matemática garante uma nota melhor porque a matéria fica fresca.",
+                isFact: false,
+                explanation: "MITO! Sem dormir, seu hipocampo não consegue fixar os dados. Você corre o risco de ter um 'branco' total durante o teste por exaustão do córtex pré-frontal."
+            },
+            {
+                category: "LUZ & TECNOLOGIA",
+                question: "Usar o celular com filtro de luz azul na cama não afeta a qualidade do sono.",
+                isFact: false,
+                explanation: "MITO! Mesmo com filtro, a iluminação contínua e o estímulo das redes sociais enganam o cérebro, bloqueando a melatonina (hormônio do sono)."
+            },
+            {
+                category: "NEUROCIÊNCIA",
+                question: "Adolescentes precisam naturalmente de mais horas de sono do que adultos.",
+                isFact: true,
+                explanation: "FATO! Durante a adolescência, o cérebro passa por uma intensa remodelação neural e precisa de 8 a 10 horas diárias para se desenvolver plenamente."
+            },
+            {
+                category: "SAÚDE & BELEZA",
+                question: "Dormir bem reduz o surgimento de acne e estresse de forma real.",
+                isFact: true,
+                explanation: "FATO! O sono regula os níveis de cortisol (hormônio do estresse) e ativa a regeneração celular da pele."
+            },
+            {
+                category: "ESTUDOS",
+                question: "Estudar 2 horas bem descansado vale mais do que 5 horas virado de madrugada.",
+                isFact: true,
+                explanation: "FATO! Um cérebro descansado absorve informações até 3 vezes mais rápido do que um cérebro cansado."
+            }
+        ];
+
+        let currentQuizIndex = 0;
+        let quizScore = 0;
+
+        function loadQuestion() {
+            const q = quizQuestions[currentQuizIndex];
+            document.getElementById('quiz-category').innerText = q.category;
+            document.getElementById('quiz-question-text').innerText = `"${q.question}"`;
+            document.getElementById('quiz-current-step').innerText = currentQuizIndex + 1;
+            document.getElementById('quiz-total-step').innerText = quizQuestions.length;
+            
+            // Hide explanation
+            document.getElementById('quiz-explanation-box').classList.add('hidden');
+            document.getElementById('quiz-options-container').classList.remove('hidden');
+        }
+
+        function handleQuizAnswer(userAnswer) {
+            const q = quizQuestions[currentQuizIndex];
+            const isCorrect = (userAnswer === q.isFact);
+
+            if(isCorrect) quizScore += 20;
+            document.getElementById('quiz-score').innerText = quizScore;
+
+            const expBox = document.getElementById('quiz-explanation-box');
+            const expHeader = document.getElementById('explanation-header');
+            const expText = document.getElementById('explanation-text');
+
+            if(isCorrect) {
+                expHeader.innerHTML = `<i class="fa-solid fa-circle-check text-emerald-400 text-xl"></i> <span class="font-extrabold text-emerald-400 text-sm">Mandou Muito Bem! Resposta Correta!</span>`;
+            } else {
+                expHeader.innerHTML = `<i class="fa-solid fa-circle-xmark text-rose-400 text-xl"></i> <span class="font-extrabold text-rose-400 text-sm">Ops, Não é bem assim...</span>`;
+            }
+
+            expText.innerText = q.explanation;
+
+            document.getElementById('quiz-options-container').classList.add('hidden');
+            expBox.classList.remove('hidden');
+        }
+
+        function nextQuestion() {
+            currentQuizIndex++;
+            if(currentQuizIndex < quizQuestions.length) {
+                loadQuestion();
+            } else {
+                // Game Finished
+                document.getElementById('quiz-question-text').innerText = ` 🎉 Parabéns! Você concluiu o Quiz com ${quizScore} pontos! Agora você é um mestre da neurociência do sono.`;
+                document.getElementById('quiz-options-container').classList.add('hidden');
+                document.getElementById('quiz-explanation-box').classList.add('hidden');
+            }
+        }
+
+        // --- SLEEP REM CALCULATOR LOGIC ---
+        function calculateSleepTimes() {
+            const wakeInput = document.getElementById('wake-time').value;
+            if(!wakeInput) return;
+
+            const [hours, minutes] = wakeInput.split(':').map(Number);
+            let wakeDate = new Date();
+            wakeDate.setHours(hours, minutes, 0, 0);
+
+            // Subtract cycles of 90 min + 15 min to fall asleep
+            const container = document.getElementById('sleep-suggestions');
+            container.innerHTML = '';
+
+            const cycles = [6, 5, 4]; // 9h, 7.5h, 6h of sleep
+
+            cycles.forEach(c => {
+                const sleepTime = new Date(wakeDate.getTime() - (c * 90 * 60 * 1000) - (15 * 60 * 1000));
+                const formattedTime = sleepTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+                const totalHours = (c * 1.5).toFixed(1);
+
+                const card = document.createElement('div');
+                card.className = "p-3.5 rounded-2xl bg-slate-900 border border-slate-700 text-center space-y-1 hover:border-cyan-400 transition-all cursor-pointer";
+                card.innerHTML = `
+                    <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">${c} Ciclos (${totalHours}h)</span>
+                    <div class="text-xl font-black text-cyan-400">${formattedTime}</div>
+                    <span class="text-[9px] text-slate-500 block">${c === 5 ? '⭐ Recomendado' : 'Ciclo Completo'}</span>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        // --- SHARE & MODAL LOGIC ---
+        function openShareModal() {
+            const modal = document.getElementById('share-modal');
+            const currentUrl = window.location.href;
+            
+            document.getElementById('share-link-input').value = currentUrl;
+            
+            // Dynamic QR Code generation using free public API
+            const qrImg = document.getElementById('share-qr-code');
+            qrImg.src = `https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=${encodeURIComponent(currentUrl)}`;
+            
+            modal.classList.remove('hidden');
+        }
+
+        function closeShareModal() {
+            document.getElementById('share-modal').classList.add('hidden');
+            document.getElementById('copy-success-msg').classList.add('hidden');
+        }
+
+        function copyAppShareLink() {
+            const copyText = document.getElementById('share-link-input');
+            copyText.select();
+            copyText.setSelectionRange(0, 99999); // Mobile compatibility
+            document.execCommand("copy");
+            
+            const msg = document.getElementById('copy-success-msg');
+            msg.classList.remove('hidden');
+            setTimeout(() => {
+                msg.classList.add('hidden');
+            }, 3000);
+        }
+
+        // --- INITIALIZATION ON LOAD ---
+        window.onload = function() {
+            // Initial Simulator calculate
+            updateSimulator(7.5);
+            // Initial Quiz Setup
+            loadQuestion();
+            // Initial Sleep Calculator
+            calculateSleepTimes();
+        };
+    </script>
+</body>
+</html>
